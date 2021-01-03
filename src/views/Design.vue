@@ -2,8 +2,8 @@
   <!-- <div class="black"></div> -->
   <panZoom
     :options="{ minZoom: 0.5, maxZoom: 5, initialZoom: 1 }"
-    @transform="transform($event)"
     class="panzoom"
+    selector="main"
   >
     <main>
       <div v-for="row in skillsByTier" v-bind:key="row.lenght" class="row">
@@ -21,6 +21,31 @@
           <div class="black">{{ skill.name }}</div>
         </div>
       </div>
+      <svg width="100%" height="100%" style="position:absolute">
+        <defs>
+          <marker
+            id="arrowhead"
+            markerWidth="10"
+            markerHeight="7"
+            refX="9"
+            refY="3.5"
+            orient="auto"
+          >
+            <polygon points="0 0, 10 3.5, 0 7" fill="rgb(255,0,0)" />
+          </marker>
+        </defs>
+        <line
+          v-for="arrow in arrows"
+          v-bind:key="arrow.id"
+          :x1="arrow.x1"
+          :y1="arrow.y1"
+          :x2="arrow.x2"
+          :y2="arrow.y2"
+          :class="arrow.class"
+          style="stroke:rgb(255,0,0);stroke-width:2"
+          marker-end="url(#arrowhead)"
+        />
+      </svg>
     </main>
   </panZoom>
 </template>
@@ -54,71 +79,38 @@ import {
 import { getTemplate } from "./skillTemplate";
 import { addNode, Graph, removeNode } from "./graph";
 import { createLine, getUpdatesLines, throttleFunction } from "./utils";
-
+import { Arrow, createArrows } from "./arrow";
 @Component
 export default class Design extends Vue {
   SkillType = SkillType;
   graph = graphData;
-  visualLines: any[][] = [] as any[][];
-  updateVisualLines = (edges: number[][]) => (visualLines: any[][]) => (
-    elements: HTMLElement[]
-  ) => {
-    visualLines.forEach(row => row.forEach(line => line.position()));
-    return visualLines;
-    // return edges.map((row, from) =>
-    //   row.map(edge => createLine(elements[from], elements[edge]))
-    // );
-    // visualLines.forEach((row, from) =>
-    //   row.forEach((line, edgeIndex) => {
-    //     const skillIndex = edges[from][edgeIndex];
-    //     line.position(elements[from], elements[skillIndex]);
-    //     line.color = "coral";
-    //     if (elements[skillIndex].className.includes("ghost")) {
-    //       line.setOptions({ opacity: 0 });
-    //       line.color = "rgba(0, 0, 0, 0.5)";
-    //     }
-    //   })
-    // );
-  };
+  arrows: Arrow[] = [] as Arrow[];
+  resizeListener() {
+    this.onGraphChange(this.graph);
+  }
+  mounted() {
+    // Register an event listener when the Vue component is ready
+    window.addEventListener("resize", this.resizeListener);
+  }
 
   beforeDestroy() {
-    this.visualLines.flat(1).forEach(oldLine => oldLine.remove());
+    // Unregister the event listener before destroying this Vue instance
+    window.removeEventListener("resize", this.resizeListener);
   }
   @Watch("graph", { immediate: true })
   onGraphChange(graph: Graph<Skill>) {
-    Vue.nextTick(() => {
+    Vue.nextTick(() =>
       map<HTMLElement[], void>(visual => {
-        this.visualLines = getUpdatesLines(this.getLineCreator(visual))(
-          graph.edges,
-          this.visualLines
-        );
-        this.visualLines = this.updateVisualLines(graph.edges)(
-          this.visualLines
-        )(visual);
-      })(this.getVisualSkills(graph));
-    });
+        this.arrows = createArrows(graph)(visual);
+      })(this.getVisualSkills(graph))
+    );
   }
-  readonly getLineCreator = (arr: HTMLElement[]) => (
-    from: number,
-    to: number
-  ) => createLine(arr[from], arr[to]);
   getVisualSkills(graph: Graph<Skill>) {
     return array.sequence(option)(
       graph.nodes.map(skill =>
         fromNullable(document.getElementById(skill.id.toString()))
       )
     );
-  }
-  transform(_: any) {
-    // throttleFunction(
-    //   () =>
-    map<HTMLElement[], void>(x => {
-      this.visualLines = this.updateVisualLines(this.graph.edges)(
-        this.visualLines
-      )(x);
-    })(this.getVisualSkills(this.graph));
-    //   0.1
-    // );
   }
   select(item: Skill) {
     if (item.type === SkillType.ghost) {
@@ -187,6 +179,15 @@ export default class Design extends Vue {
 </script>
 
 <style scoped>
+main {
+  position: relative;
+}
+svg {
+  z-index: -1;
+  top: 0;
+  left: 0;
+  position: absolute;
+}
 .panzoom {
   height: 100%;
   width: 100%;
@@ -210,7 +211,7 @@ export default class Design extends Vue {
   padding: 50px;
 }
 .item {
-  padding: 5px;
+  margin: 5px 40px;
 }
 .black {
   display: block;
@@ -218,5 +219,6 @@ export default class Design extends Vue {
   width: 144px;
   background-color: black;
   color: white;
+  opacity: 90%;
 }
 </style>
