@@ -53,13 +53,3 @@ export const createArrows = (graph: Graph<Skill>) => (
       })
     )
     .flat(1);
-// create arrows:
-// <graph.edges
-// <graph.nodes for skill tier
-// <htmlElem for coordinates
-
-// function plan
-// edges div->div
-// nodes tier to decide if it's top down or left right (same tier left right)
-// when is it left or right simple order :)
-// html for coordinates

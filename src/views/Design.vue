@@ -193,9 +193,8 @@ svg {
   width: 100%;
 }
 .selected {
-  border-style: solid;
-  border-color: gray;
-  border-width: 5px;
+  -webkit-box-shadow: 0px 0px 11px 10px rgb(128, 191, 129);
+  box-shadow: 0px 0px 11px 10px rgb(128, 191, 129);
 }
 .ghost {
   opacity: 0.5;
