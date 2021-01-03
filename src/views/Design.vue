@@ -7,8 +7,33 @@
     ref="panzoom"
   >
     <main>
-      <div v-for="row in skillsByTier" v-bind:key="row.lenght" class="row">
-        <div
+      <div v-for="(row, rowIndex) in skillsByTier" v-bind:key="row.lenght">
+        <draggable
+          direction="vertical"
+          @start="drag = true"
+          @end="drag = false"
+          @update="indexChange(rowIndex)($event)"
+          class="row"
+        >
+          <div
+            v-for="skill in skillsByTier[rowIndex]"
+            :key="skill.id"
+            :id="skill.id"
+            class="item"
+            v-on:click.prevent="select(skill)"
+            @dblclick.stop
+            @mousedown="stopPanZoom"
+            @mouseout="resumePanZoom"
+            @mouseup="resumePanZoom"
+            v-bind:class="{
+              selected: skill.selected,
+              ghost: skill.type === SkillType.ghost
+            }"
+          >
+            <div class="black">{{ skill.name }}</div>
+          </div>
+        </draggable>
+        <!-- <div
           v-for="skill in row"
           v-bind:key="skill.id"
           v-bind:id="skill.id"
@@ -24,7 +49,7 @@
           }"
         >
           <div class="black">{{ skill.name }}</div>
-        </div>
+        </div> -->
       </div>
       <svg width="100%" height="100%" style="position:absolute">
         <defs>
@@ -71,9 +96,14 @@ import {
   option
 } from "fp-ts/lib/Option";
 import { getTemplate } from "./skillTemplate";
-import { addNode, Graph, removeNode } from "./graph";
+import { addNode, Graph, removeNode, dragNode } from "./graph";
 import { Arrow, createArrows } from "./arrow";
-@Component
+import draggable from "vuedraggable";
+@Component({
+  components: {
+    draggable
+  }
+})
 export default class Design extends Vue {
   SkillType = SkillType;
   graph = graphData;
@@ -96,6 +126,29 @@ export default class Design extends Vue {
   beforeDestroy() {
     // Unregister the event listener before destroying this Vue instance
     window.removeEventListener("resize", this.resizeListener);
+  }
+  indexChange(index: number) {
+    return (event: { oldIndex: number; newIndex: number }) => {
+      // const reverseTierIndex = this.skillsByTier.length - 1 - index;
+      const oldMappedIndex = this.graph.nodes.indexOf(
+        this.skillsByTier[index][event.oldIndex]
+      );
+      const newMappedIndex = this.graph.nodes.indexOf(
+        this.skillsByTier[index][event.newIndex]
+      );
+      if (oldMappedIndex >= 0 && newMappedIndex >= 0) {
+        this.graph = dragNode<Skill>(this.graph)(
+          oldMappedIndex,
+          newMappedIndex
+        );
+      }
+
+      // // map skills to have index
+      // this.graph.nodes.map(skill=>)
+      // // filterend by tier ->skill and index
+      // // graph swap nodes :)
+      // console.log(event);
+    };
   }
   @Watch("graph", { immediate: true })
   onGraphChange(graph: Graph<Skill>) {

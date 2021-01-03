@@ -38,3 +38,55 @@ export function removeNode<T>(graph: Graph<T>) {
         };
   };
 }
+
+export function dragNode<T>(graph: Graph<T>) {
+  return (fromIndex: number, toIndex: number): Graph<T> => ({
+    nodes: graph.nodes.map((node, index) =>
+      index === toIndex
+        ? graph.nodes[fromIndex]
+        : fromIndex >= index && index > toIndex
+        ? graph.nodes[index - 1]
+        : toIndex > index && index >= fromIndex
+        ? graph.nodes[index + 1]
+        : node
+    ),
+    edges: graph.edges.map((node, index) =>
+      (index === toIndex
+        ? graph.edges[fromIndex]
+        : fromIndex >= index && index > toIndex
+        ? graph.edges[index - 1]
+        : toIndex > index && index >= fromIndex
+        ? graph.edges[index + 1]
+        : node
+      ).map(edge =>
+        edge === toIndex
+          ? fromIndex
+          : fromIndex >= edge && edge > toIndex
+          ? edge - 1
+          : toIndex > edge && edge >= fromIndex
+          ? edge + 1
+          : edge
+      )
+    )
+  });
+}
+export function swapNode<T>(graph: Graph<T>) {
+  return (fromIndex: number, toIndex: number): Graph<T> => ({
+    nodes: graph.nodes.map((node, index) =>
+      index === fromIndex
+        ? graph.nodes[toIndex]
+        : index === toIndex
+        ? graph.nodes[fromIndex]
+        : node
+    ),
+    edges: graph.edges.map((node, index) =>
+      index === fromIndex
+        ? graph.edges[toIndex]
+        : index === toIndex
+        ? graph.edges[fromIndex]
+        : node.map(edge =>
+            edge === fromIndex ? toIndex : edge === toIndex ? fromIndex : edge
+          )
+    )
+  });
+}

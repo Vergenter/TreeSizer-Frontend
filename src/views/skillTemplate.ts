@@ -15,7 +15,7 @@ export function getTemplate(idsTaken: number[]) {
         type: SkillType.template,
         selected: false,
         id,
-        name: "template",
+        name: `template ${id}`,
         description: "generic template skill",
         tier,
         colorGroup: 0
