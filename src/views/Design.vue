@@ -4,6 +4,7 @@
     :options="{ minZoom: 0.5, maxZoom: 5, initialZoom: 1 }"
     class="panzoom"
     selector="main"
+    ref="panzoom"
   >
     <main>
       <div v-for="row in skillsByTier" v-bind:key="row.lenght" class="row">
@@ -12,7 +13,11 @@
           v-bind:key="skill.id"
           v-bind:id="skill.id"
           class="item"
-          v-on:click.prevent="select(skill)"
+          v-on:click="select(skill)"
+          @dblclick.stop
+          @mousedown="stopPanZoom"
+          @mouseout="resumePanZoom"
+          @mouseup="resumePanZoom"
           v-bind:class="{
             selected: skill.selected,
             ghost: skill.type === SkillType.ghost
@@ -52,39 +57,34 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import { Skill, SkillType } from "./Skill";
-import { defaultNodes, graph as graphData } from "./exampleData";
-import {
-  reverse,
-  snoc,
-  sort,
-  uniq,
-  map as arrmap,
-  splitAt,
-  dropLeft
-} from "fp-ts/lib/Array";
+import { graph as graphData } from "./exampleData";
 import { pipe } from "fp-ts/lib/function";
 import { eqNumber } from "fp-ts/lib/Eq";
 import { ordNumber } from "fp-ts/lib/Ord";
-import { array } from "fp-ts/lib/Array";
+import { array, uniq, sort, reverse, map as arrmap } from "fp-ts/lib/Array";
 import {
   Option,
   none,
-  some,
   map,
   getOrElse,
   fromNullable,
-  isSome,
   option
 } from "fp-ts/lib/Option";
 import { getTemplate } from "./skillTemplate";
 import { addNode, Graph, removeNode } from "./graph";
-import { createLine, getUpdatesLines, throttleFunction } from "./utils";
 import { Arrow, createArrows } from "./arrow";
 @Component
 export default class Design extends Vue {
   SkillType = SkillType;
   graph = graphData;
   arrows: Arrow[] = [] as Arrow[];
+
+  stopPanZoom() {
+    (this.$refs.panzoom as any).pause();
+  }
+  resumePanZoom() {
+    (this.$refs.panzoom as any).resume();
+  }
   resizeListener() {
     this.onGraphChange(this.graph);
   }
