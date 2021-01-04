@@ -271,6 +271,6 @@ svg {
   width: 144px;
   background-color: black;
   color: white;
-  opacity: 90%;
+  opacity: 0.9;
 }
 </style>
