@@ -15,11 +15,11 @@ cd dist
 git init
 git add -A
 git commit -m 'deploy'
-git subtree push --prefix dist origin gh-pages
+git push -f git@github.com:Vergenter/TreeSizer-Frontend.git master:gh-pages
 rm -rf .git
 # if you are deploying to https://<USERNAME>.github.io
 # git push -f git@github.com:<USERNAME>/<USERNAME>.github.io.git master
 
 # if you are deploying to https://<USERNAME>.github.io/<REPO>
-# git push -f git@github.com:Vergenter/TreeSizer-Frontend.git main:gh-pages
+# 
 cd -
