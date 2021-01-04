@@ -17,7 +17,7 @@ export interface Skill {
   name: string;
   description: string;
   tier: number;
-  colorGroup: Option<number>;
+  upgradedId: Option<number>;
 }
 export const skillEq: Eq<Skill> = {
   equals: (s1: Skill, s2: Skill) => s1.id === s2.id

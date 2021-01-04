@@ -19,7 +19,7 @@ export function getTemplate(idsTaken: number[]) {
         name: `template ${id}`,
         description: "generic template skill",
         tier,
-        colorGroup: none
+        upgradedId: none
       }))
     );
 }

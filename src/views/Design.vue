@@ -10,17 +10,17 @@
       <div v-for="(row, rowIndex) in skillsByTier" v-bind:key="row.lenght">
         <draggable
           direction="vertical"
+          draggable=".item"
           @start="drag = true"
           @end="drag = false"
           @update="indexChange(rowIndex)($event)"
           class="row"
         >
           <div
-            v-for="skill in skillsByTier[rowIndex]"
+            v-for="(skill, skillIndex) in skillsByTier[rowIndex]"
             :key="skill.id"
             :id="skill.id"
             class="item"
-            v-on:click.prevent="select(skill)"
             @dblclick.stop
             @mousedown="stopPanZoom"
             @mouseout="resumePanZoom"
@@ -30,26 +30,25 @@
               ghost: skill.type === SkillType.ghost
             }"
           >
-            <div class="black">{{ skill.name }}</div>
+            <div
+              class="black"
+              v-on:click.prevent="select(skill)"
+              :style="{ backgroundColor: getColor(skill.upgradedId) }"
+            >
+              {{ skill.name }}
+            </div>
+            <div
+              v-if="skill.tier === 1"
+              class="diamond-shape upgrade"
+              v-on:click.prevent="upgrade(skill)"
+              :style="{ backgroundColor: colors[skillIndex] }"
+            >
+              <div class="upgrade-count">
+                {{ firstTierCounter[skillIndex] }}
+              </div>
+            </div>
           </div>
         </draggable>
-        <!-- <div
-          v-for="skill in row"
-          v-bind:key="skill.id"
-          v-bind:id="skill.id"
-          class="item"
-          v-on:click="select(skill)"
-          @dblclick.stop
-          @mousedown="stopPanZoom"
-          @mouseout="resumePanZoom"
-          @mouseup="resumePanZoom"
-          v-bind:class="{
-            selected: skill.selected,
-            ghost: skill.type === SkillType.ghost
-          }"
-        >
-          <div class="black">{{ skill.name }}</div>
-        </div> -->
       </div>
       <svg width="100%" height="100%" style="position:absolute">
         <defs>
@@ -86,19 +85,34 @@ import { graph as graphData } from "./exampleData";
 import { pipe } from "fp-ts/lib/function";
 import { eqNumber } from "fp-ts/lib/Eq";
 import { ordNumber } from "fp-ts/lib/Ord";
-import { array, uniq, sort, reverse, map as arrmap } from "fp-ts/lib/Array";
+import {
+  array,
+  uniq,
+  sort,
+  reverse,
+  map as arrmap,
+  filter,
+  findIndex,
+  filterMap
+} from "fp-ts/lib/Array";
 import {
   Option,
   none,
   map,
   getOrElse,
   fromNullable,
-  option
+  option,
+  isSome,
+  fromPredicate,
+  chain,
+  fold,
+  some
 } from "fp-ts/lib/Option";
 import { getTemplate } from "./skillTemplate";
-import { addNode, Graph, removeNode, dragNode } from "./graph";
+import { addNode, Graph, removeNode, dragNode, updateNode } from "./graph";
 import { Arrow, createArrows } from "./arrow";
 import draggable from "vuedraggable";
+import { canUpgrade, updateUpgrade } from "./skillTree";
 @Component({
   components: {
     draggable
@@ -108,12 +122,74 @@ export default class Design extends Vue {
   SkillType = SkillType;
   graph = graphData;
   arrows: Arrow[] = [] as Arrow[];
+  get firstTiers() {
+    return this.graph.nodes.filter(skill => skill.tier === 1);
+  }
+  getColor(group: Option<number>): string {
+    return pipe(
+      group,
+      chain(id => findIndex<Skill>(x => x.id === id)(this.firstTiers)),
+      fold(
+        () => "#000000",
+        index => this.colors[index]
+      )
+    );
+  }
+  upgrade(skill: Skill) {
+    const selected = this.graph.nodes.filter(skill => skill.selected);
+    if (selected.length !== 2) {
+      return;
+    }
+    pipe(
+      this.graph.nodes,
+      filter((skill: Skill) => skill.selected),
+      fromPredicate(selected => selected.length === 2),
+      map(
+        selected => [selected[0], selected[1], skill] as [Skill, Skill, Skill]
+      ),
+      map(selected =>
+        fold(
+          () => {
+            this.graph = updateUpgrade(this.graph)(selected);
+          },
+          x => x
+        )(canUpgrade(this.graph)(selected))
+      )
 
+      // visualize error like some or other thing ;)
+    );
+  }
+  readonly colors = [
+    "#0B6623",
+    "#9DC184",
+    "#708238",
+    "#c7ea46",
+    "#3f704d",
+    "#00A86B",
+    "#8f9779",
+    "#4f7942",
+    "#29AB87",
+    "#AABA9F",
+    "#8A9A5B",
+    "#99FA99",
+    "#01796F",
+    "#D0F0C1",
+    "#01A573",
+    "#4B5320",
+    "#51C878",
+    "#4CBB17",
+    "#39FF14",
+    "#434C37",
+    "#043927",
+    "#679267",
+    "#2F8B58",
+    "#51C878"
+  ];
   stopPanZoom() {
-    (this.$refs.panzoom as any).pause();
+    ((this.$refs.panzoom as unknown) as { pause: () => void }).pause();
   }
   resumePanZoom() {
-    (this.$refs.panzoom as any).resume();
+    ((this.$refs.panzoom as unknown) as { resume: () => void }).resume();
   }
   resizeListener() {
     this.onGraphChange(this.graph);
@@ -129,7 +205,6 @@ export default class Design extends Vue {
   }
   indexChange(index: number) {
     return (event: { oldIndex: number; newIndex: number }) => {
-      // const reverseTierIndex = this.skillsByTier.length - 1 - index;
       const oldMappedIndex = this.graph.nodes.indexOf(
         this.skillsByTier[index][event.oldIndex]
       );
@@ -142,12 +217,6 @@ export default class Design extends Vue {
           newMappedIndex
         );
       }
-
-      // // map skills to have index
-      // this.graph.nodes.map(skill=>)
-      // // filterend by tier ->skill and index
-      // // graph swap nodes :)
-      // console.log(event);
     };
   }
   @Watch("graph", { immediate: true })
@@ -185,7 +254,6 @@ export default class Design extends Vue {
       )(this.getChangeFromSelection(this.graph.nodes))
     );
   }
-  // need function that returns
   getChangeFromSelection(skills: Skill[]): Option<[number[], Skill]> {
     const templatesIds = skills
       .filter(skill => skill.type === SkillType.template)
@@ -218,6 +286,14 @@ export default class Design extends Vue {
       } else return none;
     }
   }
+  get firstTierCounter(): number[] {
+    const data = filterMap<Skill, number>(node => node.upgradedId)(
+      this.graph.nodes
+    );
+    return this.firstTiers.map(
+      skill => data.filter(data => data === skill.id).length / 2
+    );
+  }
   get skillsByTier(): Skill[][] {
     return pipe(
       this.graph.nodes,
@@ -234,6 +310,8 @@ export default class Design extends Vue {
 <style scoped>
 main {
   position: relative;
+  width: 100%;
+  height: 100%;
 }
 svg {
   z-index: -1;
@@ -265,6 +343,7 @@ svg {
 }
 .item {
   margin: 5px 40px;
+  position: relative;
 }
 .black {
   display: block;
@@ -273,5 +352,26 @@ svg {
   background-color: black;
   color: white;
   opacity: 0.9;
+}
+.upgrade {
+  position: absolute;
+}
+.upgrade-count {
+  color: #333;
+  display: table-cell;
+  height: 40px;
+  transform: rotate(-45deg);
+  vertical-align: middle;
+  width: 40px;
+  opacity: 0.9;
+}
+.diamond-shape {
+  margin-top: 1em;
+  background: #000000;
+  height: 40px;
+  text-align: center;
+  left: 50%;
+  transform: translate(-50%, 0) rotate(45deg);
+  width: 40px;
 }
 </style>

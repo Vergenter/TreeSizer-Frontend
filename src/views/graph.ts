@@ -1,5 +1,5 @@
 import { snoc, mapWithIndex } from "fp-ts/lib/Array";
-import { pipe } from "fp-ts/lib/function";
+import { pipe, Predicate } from "fp-ts/lib/function";
 export interface Graph<T> {
   nodes: T[];
   edges: number[][];
@@ -88,5 +88,11 @@ export function swapNode<T>(graph: Graph<T>) {
             edge === fromIndex ? toIndex : edge === toIndex ? fromIndex : edge
           )
     )
+  });
+}
+export function updateNode<T>(graph: Graph<T>) {
+  return (predicate: Predicate<T>) => (update: (t: T) => T): Graph<T> => ({
+    nodes: graph.nodes.map(node => (predicate(node) ? update(node) : node)),
+    edges: graph.edges
   });
 }

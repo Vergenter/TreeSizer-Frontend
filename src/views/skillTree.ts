@@ -1,7 +1,7 @@
 import { Skill } from "./Skill";
 import { Graph } from "./graph";
-import { none, Option } from "fp-ts/lib/Option";
-import { some } from "fp-ts/lib/Option";
+import { none, some, Option, getEq } from "fp-ts/lib/Option";
+import { eqNumber } from "fp-ts/lib/Eq";
 export interface Error {
   errorMessage: string[];
 }
@@ -38,10 +38,35 @@ export const canExtend = (graph: Graph<Skill>) => ([s1, s2]: [
 // not enought foundations -> information in which tier lacks foundations
 // requirements not satisfied => information about problem
 // cannot upgrade itself
+// cannot upgrade template
 export const canUpgrade = (graph: Graph<Skill>) => ([s1, s2, s3]: [
   Skill,
   Skill,
   Skill
 ]): Option<Error> => {
   return s1.tier === s2.tier && s3.tier === 1 ? none : some(invalidInput);
+};
+
+const optionNumberEq = getEq(eqNumber);
+export const updateUpgrade = (graph: Graph<Skill>) => ([s1, s2, s3]: [
+  Skill,
+  Skill,
+  Skill
+]): Graph<Skill> => {
+  const isPair = (skill: Skill) =>
+    (skill.tier === s1.tier &&
+      optionNumberEq.equals(skill.upgradedId, s1.upgradedId)) ||
+    (skill.tier === s2.tier &&
+      optionNumberEq.equals(skill.upgradedId, s2.upgradedId));
+  const isS1orS2 = (skill: Skill) => skill.id === s1.id || skill.id === s2.id;
+  return {
+    nodes: graph.nodes.map(skill =>
+      isS1orS2(skill)
+        ? { ...skill, upgradedId: some(s3.id) }
+        : isPair(skill)
+        ? { ...skill, upgradedId: none }
+        : skill
+    ),
+    edges: graph.edges
+  };
 };
