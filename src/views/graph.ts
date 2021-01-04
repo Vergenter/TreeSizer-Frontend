@@ -59,12 +59,12 @@ export function dragNode<T>(graph: Graph<T>) {
         ? graph.edges[index + 1]
         : node
       ).map(edge =>
-        edge === toIndex
-          ? fromIndex
-          : fromIndex >= edge && edge > toIndex
-          ? edge - 1
-          : toIndex > edge && edge >= fromIndex
+        edge === fromIndex
+          ? toIndex
+          : fromIndex > edge && edge >= toIndex
           ? edge + 1
+          : toIndex >= edge && edge > fromIndex
+          ? edge - 1
           : edge
       )
     )
