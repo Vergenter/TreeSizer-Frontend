@@ -240,7 +240,7 @@ svg {
   top: 0;
   left: 0;
   position: absolute;
-  overflow: overlay;
+  overflow: visible;
 }
 .panzoom {
   height: 100%;
