@@ -1,7 +1,7 @@
 <template>
   <!-- <div class="black"></div> -->
   <panZoom
-    :options="{ minZoom: 0.5, maxZoom: 5, initialZoom: 1 }"
+    :options="{ minZoom: 0.25, maxZoom: 5, initialZoom: 1 }"
     class="panzoom backgroundGrid"
     selector="main"
     ref="panzoom"
@@ -423,7 +423,10 @@ svg {
   position: relative;
 }
 .black {
-  display: block;
+  font-size: 1.6em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 100px;
   width: 144px;
   background-color: black;
@@ -434,7 +437,8 @@ svg {
   position: absolute;
 }
 .upgrade-count {
-  color: #333;
+  font-size: 1.5em;
+  color: rgb(255, 255, 255);
   display: table-cell;
   height: 40px;
   transform: rotate(-45deg);
