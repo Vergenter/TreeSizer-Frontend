@@ -48,6 +48,15 @@
               </div>
             </div>
           </div>
+
+          <md-button
+            slot="footer"
+            v-if="rowIndex === lastRowIndex"
+            @click="addFirstTier"
+            class="md-icon-button md-primary add"
+          >
+            <md-icon class="md-size-4x">add</md-icon></md-button
+          >
         </draggable>
       </div>
       <svg width="100%" height="100%" style="position:absolute">
@@ -122,6 +131,17 @@ export default class Design extends Vue {
   SkillType = SkillType;
   graph = graphData;
   arrows: Arrow[] = [] as Arrow[];
+  get lastRowIndex() {
+    return this.skillsByTier.length - 1;
+  }
+  addFirstTier() {
+    const templatesIds = this.graph.nodes
+      .filter(skill => skill.type === SkillType.template)
+      .map(skill => skill.id);
+    map<Skill, void>(skill => {
+      this.graph = addNode<Skill>(this.graph)([], skill);
+    })(getTemplate(templatesIds)(1));
+  }
   get firstTiers() {
     return this.graph.nodes.filter(skill => skill.tier === 1);
   }
@@ -319,6 +339,9 @@ svg {
   left: 0;
   position: absolute;
   overflow: visible;
+}
+.add {
+  margin: auto 20px;
 }
 .panzoom {
   height: 100%;
