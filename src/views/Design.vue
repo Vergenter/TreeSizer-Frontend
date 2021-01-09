@@ -71,12 +71,12 @@
           <marker
             id="arrowhead"
             markerWidth="10"
-            markerHeight="5"
+            markerHeight="7"
             refX="9"
             refY="3.5"
             orient="auto"
           >
-            <polygon points="0 0, 10 3.5, 0 5" fill="rgb(255,0,0)" />
+            <polygon points="0 0, 10 3.5, 0 7" fill="rgb(255,0,0)" />
           </marker>
         </defs>
         <line
