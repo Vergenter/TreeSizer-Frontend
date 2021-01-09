@@ -57,7 +57,7 @@
               <md-icon class="md-size-5x">add</md-icon></md-button
             >
             <div class="add add-diamond">
-              <div class="diamond-shape">
+              <div class="diamond-shape-empty">
                 <md-icon class="md-size-2x remove-plus" style="color:red"
                   >add</md-icon
                 >
@@ -76,7 +76,7 @@
             refY="3.5"
             orient="auto"
           >
-            <polygon points="0 0, 10 3.5, 0 7" fill="rgb(255,0,0)" />
+            <polygon points="0 0, 10 3.5, 0 7" fill="coral" />
           </marker>
         </defs>
         <line
@@ -87,7 +87,7 @@
           :x2="arrow.x2"
           :y2="arrow.y2"
           :class="arrow.class"
-          style="stroke:rgb(255,0,0);stroke-width:2"
+          style="stroke:coral;stroke-width:2"
           marker-end="url(#arrowhead)"
         />
       </svg>
@@ -446,6 +446,17 @@ svg {
   margin-top: 1em;
   background: #000000;
   height: 40px;
+  text-align: center;
+  left: 50%;
+  transform: translate(-50%, 0) rotate(45deg);
+  width: 40px;
+}
+.diamond-shape-empty {
+  margin-top: 1em;
+  height: 40px;
+  border-radius: 1px;
+  -webkit-box-shadow: 0px 0px 0px 5px black;
+  box-shadow: 0px 0px 0px 5px black;
   text-align: center;
   left: 50%;
   transform: translate(-50%, 0) rotate(45deg);
