@@ -2,7 +2,7 @@
   <!-- <div class="black"></div> -->
   <panZoom
     :options="{ minZoom: 0.5, maxZoom: 5, initialZoom: 1 }"
-    class="panzoom"
+    class="panzoom backgroundGrid"
     selector="main"
     ref="panzoom"
   >
@@ -48,15 +48,22 @@
               </div>
             </div>
           </div>
-
-          <md-button
-            slot="footer"
-            v-if="rowIndex === lastRowIndex"
-            @click="addFirstTier"
-            class="md-icon-button md-primary add"
-          >
-            <md-icon class="md-size-4x">add</md-icon></md-button
-          >
+          <div v-if="rowIndex === lastRowIndex" class="add-wrapper">
+            <md-button
+              slot="footer"
+              @click="addFirstTier"
+              class="md-icon-button md-primary add"
+            >
+              <md-icon class="md-size-5x">add</md-icon></md-button
+            >
+            <div class="add add-diamond">
+              <div class="diamond-shape">
+                <md-icon class="md-size-2x remove-plus" style="color:red"
+                  >add</md-icon
+                >
+              </div>
+            </div>
+          </div>
         </draggable>
       </div>
       <svg width="100%" height="100%" style="position:absolute">
@@ -64,12 +71,12 @@
           <marker
             id="arrowhead"
             markerWidth="10"
-            markerHeight="7"
+            markerHeight="5"
             refX="9"
             refY="3.5"
             orient="auto"
           >
-            <polygon points="0 0, 10 3.5, 0 7" fill="rgb(255,0,0)" />
+            <polygon points="0 0, 10 3.5, 0 5" fill="rgb(255,0,0)" />
           </marker>
         </defs>
         <line
@@ -340,8 +347,55 @@ svg {
   position: absolute;
   overflow: visible;
 }
+.add-diamond {
+  top: 105px;
+  left: -53px;
+}
+.add-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.remove-plus {
+  padding-right: 0.15em;
+  padding-bottom: 0.15em;
+}
+.backgroundGrid {
+  background-color: rgb(255, 255, 255);
+  background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  background-position: -2px -2px, -2px -2px, -1px -1px, -1px -1px;
+  background-image: -webkit-linear-gradient(
+      rgba(0, 0, 0, 0.3) 2px,
+      transparent 2px
+    ),
+    -webkit-linear-gradient(0, rgba(0, 0, 0, 0.3) 2px, transparent 2px),
+    -webkit-linear-gradient(rgba(0, 0, 0, 0.11) 1px, transparent 1px),
+    -webkit-linear-gradient(0, rgba(0, 0, 0, 0.11) 1px, transparent 1px);
+  background-image: -moz-linear-gradient(
+      rgba(0, 0, 0, 0.3) 2px,
+      transparent 2px
+    ),
+    -moz-linear-gradient(0, rgba(0, 0, 0, 0.3) 2px, transparent 2px),
+    -moz-linear-gradient(rgba(0, 0, 0, 0.11) 1px, transparent 1px),
+    -moz-linear-gradient(0, rgba(0, 0, 0, 0.11) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(0, 0, 0, 0.3) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.3) 2px, transparent 2px),
+    linear-gradient(rgba(0, 0, 0, 0.11) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.11) 1px, transparent 1px);
+  -pie-background: linear-gradient(rgba(0, 0, 0, 0.3) 2px, transparent 2px) -2px -2px /
+      100px,
+    linear-gradient(90deg, rgba(0, 0, 0, 0.3) 2px, transparent 2px) -2px -2px /
+      100px,
+    linear-gradient(rgba(0, 0, 0, 0.11) 1px, transparent 1px) -1px -1px / 20px,
+    linear-gradient(90deg, rgba(0, 0, 0, 0.11) 1px, transparent 1px) -1px -1px /
+      20px,
+    #269;
+  behavior: url(/pie/PIE.htc);
+}
 .add {
-  margin: auto 20px;
+  margin-left: 100px;
+  position: absolute;
 }
 .panzoom {
   height: 100%;
