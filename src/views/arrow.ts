@@ -18,7 +18,12 @@ const mask = {
   right: [0.5, 1] as [number, number]
 }; // offset for [y,x]
 export const createArrows = (graph: Graph<Skill>) => (
-  elements: HTMLElement[]
+  elements: {
+    offsetLeft: number;
+    offsetWidth: number;
+    offsetTop: number;
+    offsetHeight: number;
+  }[]
 ): Arrow[] =>
   graph.edges
     .map((node, from) =>

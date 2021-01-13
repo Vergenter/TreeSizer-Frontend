@@ -6,8 +6,12 @@ Vue.use(VueRouter);
 const routes: Array<RouteConfig> = [
   {
     path: "",
-    name: "Design",
     component: Design
+  },
+  {
+    path: "/:hash",
+    component: Design,
+    props: true
   }
 ];
 

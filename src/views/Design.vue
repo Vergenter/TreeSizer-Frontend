@@ -95,7 +95,7 @@
   </panZoom>
 </template>
 <script lang="ts">
-import { Component, Vue, Watch } from "vue-property-decorator";
+import { Component, Vue, Watch, Prop } from "vue-property-decorator";
 import { Skill, SkillType } from "./Skill";
 import { graph as graphData } from "./exampleData";
 import { pipe } from "fp-ts/lib/function";
@@ -129,12 +129,18 @@ import { addNode, Graph, removeNode, dragNode, updateNode } from "./graph";
 import { Arrow, createArrows } from "./arrow";
 import draggable from "vuedraggable";
 import { canUpgrade, updateUpgrade } from "./skillTree";
+import { getHash } from "./coder";
 @Component({
   components: {
     draggable
   }
 })
 export default class Design extends Vue {
+  @Prop({ default: "" }) hash!: string;
+  @Watch("hash", { immediate: true })
+  onHashChange(currVal: string) {
+    map(v => console.log(v))(getHash(currVal));
+  }
   SkillType = SkillType;
   graph = graphData;
   arrows: Arrow[] = [] as Arrow[];
