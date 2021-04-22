@@ -7,12 +7,10 @@
     ref="panzoom"
   >
     <main>
-      <div v-for="(row, rowIndex) in skillsByTier" v-bind:key="row.lenght">
+      <div v-for="(row, rowIndex) in skillsByTier" v-bind:key="row.length">
         <draggable
           direction="vertical"
           draggable=".item"
-          @start="drag = true"
-          @end="drag = false"
           @update="indexChange(rowIndex)($event)"
           class="row"
         >
@@ -92,6 +90,28 @@
         />
       </svg>
     </main>
+    <div class="menu">
+      <div>
+        <md-button class="button md-icon-button md-raised">
+          <md-icon class="md-size-1x md-primary">share</md-icon>
+        </md-button>
+      </div>
+      <div>
+        <md-button class="button md-icon-button md-raised">
+          <md-icon class="md-size-1x md-primary">search</md-icon>
+        </md-button>
+      </div>
+      <div>
+        <md-button class="button md-icon-button md-raised">
+          <md-icon class="md-size-1x md-primary info">priority_high</md-icon>
+        </md-button>
+      </div>
+      <div>
+        <md-button class="button md-icon-button md-raised">
+          <md-icon class="md-size-1x md-primary">delete</md-icon>
+        </md-button>
+      </div>
+    </div>
   </panZoom>
 </template>
 <script lang="ts">
@@ -352,6 +372,22 @@ svg {
   left: 0;
   position: absolute;
   overflow: visible;
+}
+.info {
+  transform: scaleY(-1);
+}
+.menu {
+  position: fixed;
+  display: flex;
+  bottom: 2em;
+  right: 0;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+}
+.button {
+  padding: 0;
+  margin: 1em 1em;
 }
 .add-diamond {
   top: 105px;

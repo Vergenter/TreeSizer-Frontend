@@ -16,7 +16,7 @@ export function getTemplate(idsTaken: number[]) {
         type: SkillType.template,
         selected: false,
         id,
-        name: `template ${id}`,
+        name: `szablon`,
         description: "generic template skill",
         tier,
         upgradedId: none
